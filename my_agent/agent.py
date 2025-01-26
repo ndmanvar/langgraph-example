@@ -1,7 +1,7 @@
 from typing import TypedDict, Literal
 
 from langgraph.graph import StateGraph, END
-from my_agent.utils.nodes import call_model, should_continue, tool_node, customer_call_model, call_tool
+from my_agent.utils.nodes import call_model, should_continue, tool_node
 from my_agent.utils.state import AgentState
 
 
@@ -15,8 +15,7 @@ workflow = StateGraph(AgentState, config_schema=GraphConfig)
 
 # Define the two nodes we will cycle between
 workflow.add_node("agent", call_model)
-workflow.add_node("customer", customer_call_model)
-workflow.add_node("router", tool_node)
+workflow.add_node("action", tool_node)
 
 # Set the entrypoint as `agent`
 # This means that this node is the first one called
@@ -37,10 +36,7 @@ workflow.add_conditional_edges(
     # Based on which one it matches, that node will then be called.
     {
         # If `tools`, then we call the tool node.
-        "continue": "router",
-
-        "customer": "customer",
-
+        "continue": "action",
         # Otherwise we finish.
         "end": END,
     },
@@ -48,8 +44,7 @@ workflow.add_conditional_edges(
 
 # We now add a normal edge from `tools` to `agent`.
 # This means that after `tools` is called, `agent` node is called next.
-workflow.add_edge("router", "agent")
-workflow.add_edge("customer", END)
+workflow.add_edge("action", "agent")
 
 # Finally, we compile it!
 # This compiles it into a LangChain Runnable,
