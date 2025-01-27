@@ -1,6 +1,13 @@
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_core.tools import tool
 
+from pydantic import BaseModel, Field
+
+class Router(BaseModel):
+    """Call this if you are able to route the user to the appropriate representative."""
+    choice: str = Field(description="should be one of: music, customer")
+
+
 # This tool is given to the agent to look up information about a customer
 @tool
 def get_customer_info(customer_id: int, first_name: str, last_name: str):
@@ -17,8 +24,5 @@ def get_customer_info(customer_id: int, first_name: str, last_name: str):
     Returns:
         dict: A dictionary containing customer information, or an error message.
     """
-    return {'customer_id': 1, 'first_name': 'Neil', 'last_name': 'Manvar'}
-    
-
-tools = [get_customer_info]
+    return {"customer_id": 1, "first_name": "neil", "last_name": "manvar"}
 
